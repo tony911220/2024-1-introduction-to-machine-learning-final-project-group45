@@ -1,0 +1,141 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financial News Sentiment Analysis</title>
+    <style>
+        /* Basic Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f7fc;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        textarea {
+            width: 100%;
+            padding: 15px;
+            font-size: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            resize: vertical;
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 8px rgba(52, 152, 219, 0.5);
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.2rem;
+            background-color: #3498db;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        .result {
+            margin-top: 30px;
+            background: #ecf0f1;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .result h2 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: #34495e;
+        }
+
+        .result p {
+            font-size: 1.1rem;
+            margin: 5px 0;
+        }
+
+        .result strong {
+            color: #2ecc71;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Financial News Sentiment Analysis</h1>
+        <textarea id="inputText" rows="5" placeholder="Enter text here..."></textarea>
+        <button id="predictButton">Analyze Sentiment</button>
+        <div id="result" class="result" style="display: none;"></div>
+    </div>
+
+    <script>
+        document.getElementById("predictButton").addEventListener("click", async () => {
+            const textInput = document.getElementById("inputText").value;
+            if (textInput.trim() === "") {
+                alert("Please enter some text for analysis.");
+                return;
+            }
+            
+            // Make POST request to the API
+            const response = await fetch("http://127.0.0.1:5000/predict", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ text: textInput }),
+            });
+
+            // Handle response
+            const result = await response.json();
+
+            // Update the result section
+            const resultDiv = document.getElementById("result");
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = `
+                <h2>Result:</h2>
+                <p>Sentiment: <strong>${result.label}</strong></p>
+                <p>Negative Possibility: ${(result.probabilities.negative * 100).toFixed(2)}%</p>
+                <p>Neutral Possibility: ${(result.probabilities.neutral * 100).toFixed(2)}%</p>
+                <p>Positive Possibility: ${(result.probabilities.positive * 100).toFixed(2)}%</p>
+            `;
+        });
+    </script>
+</body>
+
+</html>
